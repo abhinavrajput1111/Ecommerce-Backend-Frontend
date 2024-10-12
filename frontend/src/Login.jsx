@@ -1,24 +1,84 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useContext, useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { UserContext } from "./App";
 
 function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState("");
+
+  const { setLogin } = useContext(UserContext);
+  const navigate = useNavigate();
+
+  async function handleLogin(e) {
+    e.preventDefault();
+    try {
+      const response = await axios.post(
+        "http://localhost:8282/login",
+        {
+          email,
+          password,
+          role,
+        },
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
+        }
+      );
+
+      if (response.status === 201) {
+        const userRole = response.data.role;
+        setLogin(true); // Set login status to true
+
+        // Correctly check user role
+        if (userRole === "admin") {
+          navigate("/admin/dashboard");
+        } else if (userRole === "user") {
+          navigate("/home");
+        } else {
+          alert("Not registered as a valid user or Admin");
+          setLogin(false);
+          navigate("/login");
+        }
+      }
+    } catch (err) {
+      console.log("Error during login process:", err);
+      alert("Kindly check the credentials");
+    }
+  }
+
+  async function checkLogin() {
+    try {
+      const response = await axios.get("http://localhost:8282/loggedInUser", {
+        withCredentials: true,
+      });
+      console.log(response.data);
+    } catch (err) {
+      console.log("Error fetching logged-in user:", err);
+    }
+  }
+
+  // Adding empty dependency array to avoid infinite re-renders
+  useEffect(() => {
+    checkLogin();
+  }, []);
+
   return (
     <>
-      <div className="w-full flex items-center justify-center border-4 border-red-100 ml-40">
-        <section className="flex items-center justify-center h-screen bg-gray-50">
+      <div className="w-full flex items-center justify-center border-4 border-red-100">
+        <section className="flex items-center w-full justify-center h-screen bg-gray-50">
           <div className="w-full px-4 py-12 sm:px-6 sm:py-16 lg:w-1/2 lg:px-8 lg:py-24">
             <div className="mx-auto max-w-lg text-center">
               <h1 className="text-2xl font-bold sm:text-3xl">
-                Get started today!
+                Login to your Account
               </h1>
-              <p className="mt-4 text-gray-500">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Et
-                libero nulla eaque error neque ipsa culpa autem, at itaque
-                nostrum!
-              </p>
             </div>
 
-            <form action="#" className="mx-auto mb-0 mt-8 max-w-md space-y-4">
+            <form
+              className="mx-auto mb-0 mt-8 max-w-md space-y-4"
+              onSubmit={handleLogin}
+            >
               <div>
                 <label htmlFor="email" className="sr-only">
                   Email
@@ -28,23 +88,9 @@ function Login() {
                     type="email"
                     className="w-full rounded-lg border-gray-200 p-4 pe-12 text-sm shadow-sm"
                     placeholder="Enter email"
+                    onChange={(e) => setEmail(e.target.value)}
+                    value={email}
                   />
-                  <span className="absolute inset-y-0 end-0 grid place-content-center px-4">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="size-4 text-gray-400"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"
-                      />
-                    </svg>
-                  </span>
                 </div>
               </div>
 
@@ -57,40 +103,33 @@ function Login() {
                     type="password"
                     className="w-full rounded-lg border-gray-200 p-4 pe-12 text-sm shadow-sm"
                     placeholder="Enter password"
+                    onChange={(e) => setPassword(e.target.value)}
+                    value={password}
                   />
-                  <span className="absolute inset-y-0 end-0 grid place-content-center px-4">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="size-4 text-gray-400"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                      />
-                    </svg>
-                  </span>
                 </div>
+              </div>
+
+              <div className="mx-auto p-2">
+                <select
+                  className="mt-1 w-1/2 px-10 rounded-md border-gray-200 bg-white shadow-sm border"
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                >
+                  <option value="" disabled>
+                    None
+                  </option>
+                  <option value="admin">Admin</option>
+                  <option value="user">User</option>
+                </select>
               </div>
 
               <div className="flex items-center justify-between">
                 <p className="text-sm text-gray-500">
-                  No account?
-                  <Link to="/register" className="underline" href="#">
+                  No account?{" "}
+                  <Link to="/register" className="underline">
                     Sign up
                   </Link>
                 </p>
-
                 <button
                   type="submit"
                   className="inline-block rounded-lg bg-blue-500 px-5 py-3 text-sm font-medium text-white"

@@ -1,18 +1,46 @@
-import React from "react";
+import React, { useState } from "react";
 
 import { Link, useNavigate } from "react-router-dom";
 import Login from "./Login";
+import axios from "axios";
 
 function Register() {
   const navigate = useNavigate();
+
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [role, setRole] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+  // const [selectValue, setSelectValue] = useState("");
+  // const , setSelectValue] = useState("");
+
+  async function handleRegister(e) {
+    e.preventDefault();
+    if (password !== confirmPassword) {
+      alert("Password Must match with confirm Password");
+      return;
+    }
+
+    try {
+      const response = await axios.post("http://localhost:8282/registerUser", {
+        firstname: firstName,
+        lastname: lastName,
+        email,
+        password,
+        role,
+      });
+      navigate("/login");
+    } catch (err) {
+      setError("There is some issue in registration, kindly Try again later");
+      alert(error);
+    }
+  }
+
   return (
     <div>
-      {/*
-        Heads up! 👋
-      
-        Plugins:
-          - @tailwindcss/forms
-      */}
       <section className="bg-white">
         <div className="lg:grid lg:min-h-screen lg:grid-cols-12">
           <aside className="relative block h-16 lg:order-last lg:col-span-5 lg:h-full xl:col-span-6">
@@ -53,6 +81,10 @@ function Register() {
                     id="FirstName"
                     name="first_name"
                     className="mt-1 w-full rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm"
+                    value={firstName}
+                    onChange={(e) => {
+                      setFirstName(e.target.value);
+                    }}
                   />
                 </div>
 
@@ -69,6 +101,10 @@ function Register() {
                     id="LastName"
                     name="last_name"
                     className="mt-1 w-full rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm"
+                    value={lastName}
+                    onChange={(e) => {
+                      setLastName(e.target.value);
+                    }}
                   />
                 </div>
 
@@ -77,8 +113,7 @@ function Register() {
                     htmlFor="Email"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    {" "}
-                    Email{" "}
+                    Email
                   </label>
 
                   <input
@@ -86,6 +121,10 @@ function Register() {
                     id="Email"
                     name="email"
                     className="mt-1 w-full rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm"
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                    }}
                   />
                 </div>
 
@@ -94,8 +133,7 @@ function Register() {
                     htmlFor="Password"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    {" "}
-                    Password{" "}
+                    Password
                   </label>
 
                   <input
@@ -103,6 +141,10 @@ function Register() {
                     id="Password"
                     name="password"
                     className="mt-1 w-full rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm"
+                    value={password}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                    }}
                   />
                 </div>
 
@@ -119,23 +161,27 @@ function Register() {
                     id="PasswordConfirmation"
                     name="password_confirmation"
                     className="mt-1 w-full rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm"
+                    value={confirmPassword}
+                    onChange={(e) => {
+                      setConfirmPassword(e.target.value);
+                    }}
                   />
                 </div>
 
                 <div className="col-span-6">
-                  <label htmlFor="MarketingAccept" className="flex gap-4">
-                    <input
-                      type="checkbox"
-                      id="MarketingAccept"
-                      name="marketing_accept"
-                      className="size-5 rounded-md border-gray-200 bg-white shadow-sm"
-                    />
-
-                    <span className="text-sm text-gray-700">
-                      I want to receive emails about events, product updates and
-                      company announcements.
-                    </span>
-                  </label>
+                  <select
+                    className="mt-1 w-1/2 px-10 rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm border"
+                    value={role}
+                    onChange={(e) => {
+                      setRole(e.target.value);
+                    }}
+                  >
+                    <option value="" disabled>
+                      None
+                    </option>
+                    <option value="admin">Admin</option>
+                    <option value="user">User</option>
+                  </select>
                 </div>
 
                 <div className="col-span-6">
@@ -143,9 +189,9 @@ function Register() {
                     By creating an account, you agree to our
                     <a href="#" className="text-gray-700 underline">
                       {" "}
-                      terms and conditions{" "}
-                    </a>
-                    and
+                      terms and conditions
+                    </a>{" "}
+                    and{" "}
                     <a href="#" className="text-gray-700 underline">
                       privacy policy
                     </a>
@@ -154,14 +200,17 @@ function Register() {
                 </div>
 
                 <div className="col-span-6 sm:flex sm:items-center sm:gap-4">
-                  <button className="inline-block shrink-0 rounded-md border border-blue-600 bg-blue-600 px-12 py-3 text-sm font-medium text-white transition hover:bg-transparent hover:text-blue-600 focus:outline-none focus:ring active:text-blue-500">
+                  <button
+                    className="inline-block shrink-0 rounded-md border border-blue-600 bg-blue-600 px-12 py-3 text-sm font-medium text-white transition hover:bg-transparent hover:text-blue-600 focus:outline-none focus:ring active:text-blue-500"
+                    onClick={handleRegister}
+                  >
                     Create an account
                   </button>
-
+                  <br />{" "}
                   <p className="mt-4 text-sm text-gray-500 sm:mt-0">
                     Already have an account?
                     <Link to="/login" className="text-gray-700 ">
-                      Login
+                      {"  "} Login {"  "}
                     </Link>
                   </p>
                 </div>

@@ -9,6 +9,7 @@ const productSchema = new mongoose.Schema(
     description: { type: String },
     inStock: { type: Boolean, default: true },
     inventory: { type: Number, required: true },
+    img: { type: String },
     // addedBy: { type: mongoose.Types.ObjectId, required: true },
     // addedBy: {
     //   type: mongoose.Types.ObjectId,

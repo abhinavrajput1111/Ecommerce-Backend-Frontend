@@ -1,6 +1,11 @@
-import React from "react";
+import React, { useContext } from "react";
+
+import { Link } from "react-router-dom";
+import { UserContext } from "./App";
 
 function Headers() {
+  const { login, setLogin } = useContext(UserContext);
+
   return (
     <div>
       <header className="w-full bg-blue-950">
@@ -16,8 +21,24 @@ function Headers() {
           </div>
 
           <div className="w-[20%] flex justify-center items-center gap-4">
-            <p className="px-2 bg-green-500 py-1 px-3 rounded-lg">Login</p>
-            <p className="px-2 bg-yellow-500 py-1 px-3 rounded-lg"> Register</p>
+            {login ? (
+              <Link
+                to="/login"
+                className="px-2 bg-green-500 py-1 px-3 rounded-lg"
+              >
+                Log Out
+              </Link>
+            ) : (
+              ""
+            )}
+
+            <Link
+              to="/register"
+              className="px-2 bg-yellow-500 py-1 px-3 rounded-lg"
+            >
+              {" "}
+              Register
+            </Link>
           </div>
         </div>
       </header>

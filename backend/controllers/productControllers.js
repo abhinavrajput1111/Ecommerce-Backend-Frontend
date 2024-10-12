@@ -1,32 +1,5 @@
 import { productModel } from "../Models/productModels.js";
 
-// export async function getAllProducts(req, res) {
-//   try {
-//     const getAllProductsfromDB = await productModel.find();
-
-//     if (!getAllProductsfromDB) {
-//       return res.status(400).json({
-//         message: "Error fetching all products or there is some error in API",
-//       });
-//     }
-
-//     if (getAllProductsfromDB.length == 0) {
-//       res.status(200).json({ message: "Sorry No products found!" });
-//     }
-
-//     return res.status(200).json({
-//       products: getAllProductsfromDB,
-//       message: "Products fetched sucessfully",
-//     });
-//   } catch (err) {
-//     console.log(
-//       "there is some error in getting products, Error from CATCH block",
-//       err
-//     );
-//     return res.status(500).json({ message: "Error fetching products" });
-//   }
-// }
-
 export async function addProduct(req, res) {
   try {
     let {
@@ -79,7 +52,7 @@ export async function addProduct(req, res) {
 export async function deleteProduct(req, res) {
   try {
     // console.log(req.params);
-    const { id } = req.params;
+    const { id } = req.body;
     // console.log(id);
     const productToDelete = await productModel.findByIdAndDelete(id);
 

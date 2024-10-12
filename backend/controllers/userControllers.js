@@ -40,21 +40,31 @@ export async function loginUser(req, res) {
   try {
     const { email, password, role } = req.body;
 
+    console.log({ email, password, role }); // Debugging: log incoming data
+
     const checkUser = await userModel.findOne({ email });
+
+    console.log({ checkUser }); // Check if user is found
 
     if (!checkUser) {
       return res.status(401).json({ message: "Check Your Email" });
     }
 
     const checkPassword = await bcrypt.compare(password, checkUser.password);
-
+    console.log({ checkPassword }); // Check if password matches
     if (!checkPassword) {
       return res.status(401).json({ message: "Your Password is Incorrect!" });
     }
 
+    if (checkUser.role !== role) {
+      return res
+        .status(401)
+        .json({ message: "Ensure you are passing correct role" });
+    }
+
     const token = generateToken(checkUser);
 
-    res
+    return res
       .cookie("auth_token", token, {
         httpOnly: true,
         secure: false,
@@ -62,7 +72,7 @@ export async function loginUser(req, res) {
         maxAge: 3600000,
       })
       .status(201)
-      .json({ message: "User Login Successfully" });
+      .json({ message: "User Login Successfully", role: role });
   } catch (err) {
     res.status(400).json({ message: "There is some error in Login" });
     console.log(err);
@@ -110,71 +120,3 @@ export async function loggedInUser(req, res) {
     });
   }
 }
-
-// this is the middleware which is checking a user after login
-
-// import jwt from "jsonwebtoken";
-
-// import bcrypt from "bcrypt";
-
-// import { userModel } from "../Models/userModels";
-
-// export async function authMiddleware(req, res, next) {
-
-//   try {
-
-//     const { auth_token } = req.cookie;
-
-//     const decoded_token = jwt.verify(auth_token, process.env.SECRET);
-
-//     if (!decoded_token) return;
-
-//     const loggedInUser = await userModel.findOne({
-
-//       email: decoded_token.email,
-
-//     });
-
-//     if (!loggedInUser) {
-
-//       return res.status(401).json({ message: "User not logged in" });
-
-//     }
-
-//     req.user = loggedInUser;
-
-//     next();
-
-//   } catch (err) {
-
-//     console.log("there is some error", err);
-
-//     return res.status(401).json({
-
-//       message:
-
-//         "No user is logged in, No login token found or some issue from the authMiddleware",
-
-//     });
-
-//   }
-
-// }
-
-// this is the function which check it is this
-
-// export async function loggedInUser(req, res) {
-
-//   try {
-
-//     const {user} = req.user;
-
-//     return res.status(200).json({"message": "user is logged in with valid tokens", user});
-
-//   } catch (err) {
-
-//     console.log("There is some error", err);
-
-//     return res.status(400).json("message": "There is no user, or something error in loggedin User API");
-
-//   }
